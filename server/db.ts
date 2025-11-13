@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and, or, like, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, products, orders, orderItems, ratings, categories, transactions, cart } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,87 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Marketplace queries
+
+export async function getProductsByCategory(categoryId: number, limit = 20, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(products).where(eq(products.categoryId, categoryId)).limit(limit).offset(offset);
+}
+
+export async function searchProducts(query: string, limit = 20, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  // Simple search by product name
+  return db.select().from(products).where(
+    query ? undefined : undefined // Placeholder for actual search implementation
+  ).limit(limit).offset(offset);
+}
+
+export async function getProductById(productId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getSellerProducts(sellerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(products).where(eq(products.sellerId, sellerId));
+}
+
+export async function getUserOrders(userId: number, isBuyer = true) {
+  const db = await getDb();
+  if (!db) return [];
+  if (isBuyer) {
+    return db.select().from(orders).where(eq(orders.buyerId, userId));
+  } else {
+    return db.select().from(orders).where(eq(orders.sellerId, userId));
+  }
+}
+
+export async function getOrderDetails(orderId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getOrderItems(orderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+}
+
+export async function getUserBalance(userId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return result.length > 0 ? result[0].balance : 0;
+}
+
+export async function getProductRatings(productId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(ratings).where(eq(ratings.productId, productId));
+}
+
+export async function getSellerRating(sellerId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.id, sellerId)).limit(1);
+  return result.length > 0 ? result[0].averageRating : undefined;
+}
+
+export async function getCategories() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(categories);
+}
+
+export async function getSubcategories(parentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(categories).where(eq(categories.parentId, parentId));
+}
