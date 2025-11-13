@@ -195,3 +195,20 @@
 - [x] Ensure all text stays within container boundaries
 - [x] Test layout on various mobile devices
 - [x] Optimize header navigation for small screens
+
+
+## Seed Data & Testing (Current Sprint)
+
+- [x] Create seed data script for test products
+- [x] Add products to Electronics category
+- [x] Add products to Fashion category
+- [x] Add products to Home & Furniture category
+- [x] Add products to Health & Beauty category
+- [x] Add products to Vehicles category
+- [x] Add products to Real Estate category
+- [x] Add products to Books & Arts category
+- [x] Add products to Kids category
+- [x] Add ratings and reviews for test products
+- [x] Test product display on homepage
+- [ ] Test category filtering
+- [ ] Test product detail pages
