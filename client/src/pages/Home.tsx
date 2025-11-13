@@ -143,11 +143,11 @@ export default function Home() {
 
       {/* Categories Navigation */}
       <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex overflow-x-auto gap-4 py-4 scrollbar-hide">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="flex overflow-x-auto gap-2 sm:gap-4 py-3 sm:py-4 scrollbar-hide">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 selectedCategory === null
                   ? "bg-blue-600 text-white"
                   : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
@@ -159,14 +159,15 @@ export default function Home() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2 whitespace-nowrap ${
                   selectedCategory === cat.id
                     ? "bg-blue-600 text-white"
                     : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                 }`}
               >
-                <span>{cat.icon}</span>
-                {cat.name}
+                <span className="text-sm sm:text-base">{cat.icon}</span>
+                <span className="hidden sm:inline">{cat.name}</span>
+                <span className="sm:hidden text-xs">{cat.name.substring(0, 4)}</span>
               </button>
             ))}
           </div>
@@ -222,25 +223,25 @@ export default function Home() {
                     </div>
 
                     {/* Product Info */}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 truncate mb-2">
+                    <div className="p-3 sm:p-4 flex flex-col h-full">
+                      <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2 text-sm sm:text-base">
                         {product.name}
                       </h3>
 
                       {/* Price */}
-                      <div className="mb-3">
-                        <p className="text-xl font-bold text-blue-600">
+                      <div className="mb-2 sm:mb-3">
+                        <p className="text-lg sm:text-xl font-bold text-blue-600 break-words">
                           {product.price.toLocaleString()} د.ع
                         </p>
                       </div>
 
                       {/* Rating */}
-                      <div className="flex items-center gap-1 mb-3">
+                      <div className="flex items-center gap-1 mb-3 flex-wrap">
                         <div className="flex">
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-4 h-4 ${
+                              className={`w-3 sm:w-4 h-3 sm:h-4 ${
                                 i < Math.round(Number(product.averageRating))
                                   ? "fill-yellow-400 text-yellow-400"
                                   : "text-gray-300"
@@ -254,7 +255,7 @@ export default function Home() {
                       </div>
 
                       {/* Add to Cart Button */}
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm py-1.5 sm:py-2 mt-auto">
                         أضف إلى السلة
                       </Button>
                     </div>
@@ -270,11 +271,11 @@ export default function Home() {
         </div>
 
         {/* Why Choose Us Section */}
-        <div className="bg-gray-50 rounded-lg p-8 mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+        <div className="bg-gray-50 rounded-lg p-4 sm:p-8 mb-12">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
             لماذا تختار AH Alpha؟
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
             <div className="text-center">
               <div className="text-4xl mb-4">🛡️</div>
               <h3 className="font-semibold text-gray-900 mb-2">حماية المشتري والبائع</h3>

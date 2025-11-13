@@ -185,3 +185,13 @@
 - [ ] Regional expansion (beyond Iraq)
 - [ ] Mobile app development
 - [ ] Advanced analytics and reporting
+
+
+## Mobile Optimization Issues (Current Sprint)
+
+- [x] Fix category navigation on mobile - add horizontal slider/carousel
+- [x] Improve text wrapping in category boxes
+- [x] Adjust padding and margins for mobile screens
+- [x] Ensure all text stays within container boundaries
+- [x] Test layout on various mobile devices
+- [x] Optimize header navigation for small screens
