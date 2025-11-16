@@ -212,9 +212,17 @@ export default function Home() {
                   <CardContent className="p-0">
                     {/* Product Image */}
                     <div className="relative bg-gray-200 h-48 overflow-hidden rounded-t-lg">
-                      <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                        <span className="text-gray-500">صورة المنتج</span>
-                      </div>
+                      {product.imageUrls && product.imageUrls.length > 0 ? (
+                        <img
+                          src={JSON.parse(product.imageUrls)[0]}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                          <span className="text-gray-500">صورة المنتج</span>
+                        </div>
+                      )}
                       {product.condition === "new" && (
                         <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
                           جديد
