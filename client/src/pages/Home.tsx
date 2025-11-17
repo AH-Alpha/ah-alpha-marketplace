@@ -6,9 +6,10 @@ import { Search, ShoppingCart, User, LogOut, Menu, X, Star, Package } from "luci
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export default function Home() {
+  const [, navigate] = useLocation();
   const { user, loading, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -208,6 +209,7 @@ export default function Home() {
                 <Card
                   key={product.id}
                   className="hover:shadow-lg transition-shadow cursor-pointer group"
+                  onClick={() => navigate(`/product/${product.id}`)}
                 >
                   <CardContent className="p-0">
                     {/* Product Image */}
@@ -263,7 +265,13 @@ export default function Home() {
                       </div>
 
                       {/* Add to Cart Button */}
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm py-1.5 sm:py-2 mt-auto">
+                      <Button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/product/${product.id}`);
+                        }}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm py-1.5 sm:py-2 mt-auto"
+                      >
                         أضف إلى السلة
                       </Button>
                     </div>
