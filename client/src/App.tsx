@@ -16,13 +16,14 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/:id"} component={ProductDetail} />
       <Route path={"/cart"} component={Cart} />
       <Route path={"/seller-dashboard"} component={SellerDashboard} />
       <Route path={"/profile"} component={UserProfile} />
       <Route path={"/orders"} component={Orders} />
       <Route path={"/messages"} component={Messages} />
       <Route path={"/404"} component={NotFound} />
+      <Route path={"/product/:id"} component={ProductDetail} />
+      <Route path={"/:id"} component={ProductDetail} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
