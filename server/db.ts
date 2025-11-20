@@ -1,6 +1,6 @@
 import { eq, and, or, like, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, orders, orderItems, ratings, categories, transactions, cart } from "../drizzle/schema";
+import { InsertUser, users, products, orders, orderItems, ratings, categories, transactions, cart, conversations, messages, InsertMessage, InsertConversation } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -172,4 +172,96 @@ export async function getSubcategories(parentId: number) {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(categories).where(eq(categories.parentId, parentId));
+}
+
+// Messaging functions
+export async function getOrCreateConversation(buyerId: number, sellerId: number, productId?: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  // Check if conversation exists
+  const existing = await db
+    .select()
+    .from(conversations)
+    .where(
+      and(
+        eq(conversations.buyerId, buyerId),
+        eq(conversations.sellerId, sellerId),
+        productId ? eq(conversations.productId, productId) : undefined
+      )
+    )
+    .limit(1);
+  
+  if (existing.length > 0) {
+    return existing[0];
+  }
+  
+  // Create new conversation
+  const result = await db.insert(conversations).values({
+    buyerId,
+    sellerId,
+    productId,
+  });
+  
+  const newConversation = await db.select().from(conversations).where(eq(conversations.buyerId, buyerId)).orderBy(conversations.createdAt).limit(1);
+  return newConversation.length > 0 ? newConversation[0] : undefined;
+}
+
+export async function sendMessage(conversationId: number, senderId: number, receiverId: number, content: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  await db.insert(messages).values({
+    conversationId,
+    senderId,
+    receiverId,
+    content,
+  });
+  
+  // Update conversation's lastMessageAt
+  await db.update(conversations).set({ lastMessageAt: new Date() }).where(eq(conversations.id, conversationId));
+  
+  const newMessage = await db.select().from(messages).where(eq(messages.conversationId, conversationId)).orderBy(messages.createdAt).limit(1);
+  return newMessage.length > 0 ? newMessage[0] : undefined;
+}
+
+export async function getConversationMessages(conversationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(messages).where(eq(messages.conversationId, conversationId)).orderBy(messages.createdAt);
+}
+
+export async function getUserConversations(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get conversations where user is buyer or seller
+  const result = await db
+    .select()
+    .from(conversations)
+    .where(
+      or(
+        eq(conversations.buyerId, userId),
+        eq(conversations.sellerId, userId)
+      )
+    )
+    .orderBy(conversations.lastMessageAt);
+  
+  return result;
+}
+
+export async function markMessagesAsRead(conversationId: number, receiverId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(messages)
+    .set({ isRead: true })
+    .where(
+      and(
+        eq(messages.conversationId, conversationId),
+        eq(messages.receiverId, receiverId),
+        eq(messages.isRead, false)
+      )
+    );
 }

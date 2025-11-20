@@ -10,16 +10,18 @@ import Cart from "./pages/Cart";
 import SellerDashboard from "./pages/SellerDashboard";
 import UserProfile from "./pages/UserProfile";
 import Orders from "./pages/Orders";
+import Messages from "./pages/Messages";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/product/:id"} component={ProductDetail} />
+      <Route path={"/:id"} component={ProductDetail} />
       <Route path={"/cart"} component={Cart} />
-      <Route path={"/seller/dashboard"} component={SellerDashboard} />
+      <Route path={"/seller-dashboard"} component={SellerDashboard} />
       <Route path={"/profile"} component={UserProfile} />
       <Route path={"/orders"} component={Orders} />
+      <Route path={"/messages"} component={Messages} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

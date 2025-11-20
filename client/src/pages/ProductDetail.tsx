@@ -44,6 +44,30 @@ export default function ProductDetail() {
     },
   });
 
+  const createConversationMutation = trpc.messaging.getOrCreateConversation.useMutation({
+    onSuccess: () => {
+      toast.success("تم فتح المحادثة");
+      navigate("/messages");
+    },
+    onError: () => {
+      toast.error("حدث خطأ أثناء فتح المحادثة");
+    },
+  });
+
+  const handleContactSeller = async () => {
+    if (!isAuthenticated) {
+      toast.error("يجب تسجيل الدخول أولاً");
+      return;
+    }
+    
+    if (!product) return;
+    
+    await createConversationMutation.mutateAsync({
+      sellerId: product.sellerId,
+      productId: product.id,
+    });
+  };
+
   if (!productId || productLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -204,30 +228,49 @@ export default function ProductDetail() {
               </CardContent>
             </Card>
 
-            {/* Product Description */}
+            {/* Product Description & Specifications */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
                   تفاصيل المنتج
                 </h3>
-                <div className="space-y-4 text-gray-700">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-6">
+                  {/* Basic Info */}
+                  <div className="grid grid-cols-2 gap-4 pb-6 border-b border-gray-200">
                     <div>
-                      <span className="font-semibold text-gray-900">الحالة:</span>
-                      <p className="text-gray-600 mt-1">
+                      <p className="text-sm text-gray-600 mb-1">الحالة</p>
+                      <p className="font-semibold text-gray-900">
                         {product.condition === "new" ? "جديد" : "مستعمل"}
                       </p>
                     </div>
                     <div>
-                      <span className="font-semibold text-gray-900">الكمية المتاحة:</span>
-                      <p className="text-gray-600 mt-1">{product.quantity} وحدة</p>
+                      <p className="text-sm text-gray-600 mb-1">الكمية المتاحة</p>
+                      <p className="font-semibold text-gray-900">{product.quantity} وحدة</p>
                     </div>
                   </div>
+
+                  {/* Description */}
                   <div>
-                    <span className="font-semibold text-gray-900">الوصف:</span>
-                    <p className="mt-2 text-gray-600 leading-relaxed">
+                    <h4 className="font-semibold text-gray-900 mb-3">وصف المنتج</h4>
+                    <p className="text-gray-600 leading-relaxed">
                       {product.description}
                     </p>
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">طريقة الدفع</span>
+                      <span className="font-semibold text-gray-900">تحويل بنكي / دفع عند الاستلام</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">الشحن</span>
+                      <span className="font-semibold text-gray-900">شحن مجاني للعراق</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">سياسة الاسترجاع</span>
+                      <span className="font-semibold text-gray-900">استرجاع مجاني خلال 7 أيام</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -476,22 +519,16 @@ export default function ProductDetail() {
                   </p>
                   <Button
                     variant="outline"
-                    className="w-full text-sm flex items-center justify-center gap-2"
+                    className="w-full text-sm flex items-center justify-center gap-2 py-3 hover:bg-blue-50 hover:border-blue-300 transition"
+                    onClick={handleContactSeller}
+                    disabled={createConversationMutation.isPending}
                   >
                     <MessageSquare className="w-4 h-4" />
-                    تواصل مع البائع
+                    {createConversationMutation.isPending ? "جاري الفتح..." : "تواصل مع البائع"}
                   </Button>
                 </div>
 
-                {/* Safety Info */}
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-xs text-blue-900 font-semibold mb-2">
-                    🛡️ حماية المشتري
-                  </p>
-                  <p className="text-xs text-blue-800 leading-relaxed">
-                    أموالك محجوزة بأمان حتى تستلم المنتج وتؤكد رضاك عنه بالكامل
-                  </p>
-                </div>
+
               </CardContent>
             </Card>
           </div>

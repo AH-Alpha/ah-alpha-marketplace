@@ -17,8 +17,13 @@ import {
   getSubcategories,
   getDb,
   getUserByOpenId,
+  getOrCreateConversation,
+  sendMessage,
+  getConversationMessages,
+  getUserConversations,
+  markMessagesAsRead,
 } from "./db";
-import { products, orders, orderItems, ratings, categories, transactions, cart, users } from "../drizzle/schema";
+import { products, orders, orderItems, ratings, categories, transactions, cart, users, conversations, messages } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 
 export const appRouter = router({
@@ -254,6 +259,70 @@ export const appRouter = router({
         
         await db.delete(cart).where(eq(cart.id, input));
         
+        return { success: true };
+      }),
+  }),
+  
+  messaging: router({
+    getOrCreateConversation: protectedProcedure
+      .input(z.object({
+        sellerId: z.number(),
+        productId: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const conversation = await getOrCreateConversation(ctx.user.id, input.sellerId, input.productId);
+        return conversation;
+      }),
+    
+    sendMessage: protectedProcedure
+      .input(z.object({
+        conversationId: z.number(),
+        receiverId: z.number(),
+        content: z.string().min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const message = await sendMessage(input.conversationId, ctx.user.id, input.receiverId, input.content);
+        return message;
+      }),
+    
+    getConversationMessages: protectedProcedure
+      .input(z.number())
+      .query(async ({ input }) => {
+        return getConversationMessages(input);
+      }),
+    
+    getUserConversations: protectedProcedure
+      .query(async ({ ctx }) => {
+        const convos = await getUserConversations(ctx.user.id);
+        const db = await getDb();
+        if (!db) return [];
+        
+        const enriched = await Promise.all(
+          convos.map(async (convo) => {
+            const otherUserId = convo.buyerId === ctx.user.id ? convo.sellerId : convo.buyerId;
+            const otherUser = await db.select().from(users).where(eq(users.id, otherUserId)).limit(1);
+            
+            let product = null;
+            if (convo.productId) {
+              const productData = await db.select().from(products).where(eq(products.id, convo.productId)).limit(1);
+              product = productData.length > 0 ? productData[0] : null;
+            }
+            
+            return {
+              ...convo,
+              otherUser: otherUser.length > 0 ? otherUser[0] : null,
+              product,
+            };
+          })
+        );
+        
+        return enriched;
+      }),
+    
+    markAsRead: protectedProcedure
+      .input(z.number())
+      .mutation(async ({ ctx, input }) => {
+        await markMessagesAsRead(input, ctx.user.id);
         return { success: true };
       }),
   }),

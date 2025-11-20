@@ -15,6 +15,13 @@
       "when": 1763012868503,
       "tag": "0001_equal_vance_astro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763490043031,
+      "tag": "0002_blushing_paibok",
+      "breakpoints": true
     }
   ]
 }

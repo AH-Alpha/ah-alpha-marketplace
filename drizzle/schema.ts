@@ -139,4 +139,31 @@ export const cart = mysqlTable("cart", {
 export type Cart = typeof cart.$inferSelect;
 export type InsertCart = typeof cart.$inferInsert;
 
+// Conversations table (for messaging threads)
+export const conversations = mysqlTable("conversations", {
+  id: int("id").autoincrement().primaryKey(),
+  buyerId: int("buyerId").notNull(),
+  sellerId: int("sellerId").notNull(),
+  productId: int("productId"), // Optional: link to a specific product
+  lastMessageAt: timestamp("lastMessageAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = typeof conversations.$inferInsert;
+
+// Messages table
+export const messages = mysqlTable("messages", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  senderId: int("senderId").notNull(),
+  receiverId: int("receiverId").notNull(),
+  content: text("content").notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;
+
 // TODO: Add your tables here
