@@ -166,4 +166,36 @@ export const messages = mysqlTable("messages", {
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
 
+// Auctions table
+export const auctions = mysqlTable("auctions", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: int("productId").notNull(),
+  sellerId: int("sellerId").notNull(),
+  startPrice: int("startPrice").notNull(),
+  currentHighestBid: int("currentHighestBid").notNull(),
+  highestBidderId: int("highestBidderId"),
+  startTime: timestamp("startTime").defaultNow().notNull(),
+  endTime: timestamp("endTime").notNull(),
+  status: mysqlEnum("status", ["active", "ended", "cancelled"]).default("active").notNull(),
+  totalBids: int("totalBids").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Auction = typeof auctions.$inferSelect;
+export type InsertAuction = typeof auctions.$inferInsert;
+
+// Bids table
+export const bids = mysqlTable("bids", {
+  id: int("id").autoincrement().primaryKey(),
+  auctionId: int("auctionId").notNull(),
+  bidderId: int("bidderId").notNull(),
+  bidAmount: int("bidAmount").notNull(),
+  status: mysqlEnum("status", ["active", "outbid", "won"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Bid = typeof bids.$inferSelect;
+export type InsertBid = typeof bids.$inferInsert;
+
 // TODO: Add your tables here

@@ -254,3 +254,18 @@
 - [x] Build messaging inbox page
 - [ ] Add real-time message notifications
 - [ ] Test messaging system end-to-end
+
+
+## Auction System Development (Current Sprint)
+
+- [x] Add auctions table to database schema
+- [x] Add bids table to database schema
+- [x] Update products table to support auction type
+- [x] Create auction database query helpers
+- [x] Build auction API endpoints (tRPC procedures)
+- [x] Create auction creation page for sellers
+- [x] Build auction detail page with bidding system
+- [x] Add auction timer and countdown
+- [x] Implement bid validation and management
+- [x] Create auction history and won auctions page
+- [x] Test auction system end-to-end (21 tests - all passing)

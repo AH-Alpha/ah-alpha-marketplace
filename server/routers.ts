@@ -22,8 +22,15 @@ import {
   getConversationMessages,
   getUserConversations,
   markMessagesAsRead,
+  createAuction,
+  getAuctionById,
+  getActiveAuctions,
+  placeBid,
+  getBidsByAuctionId,
+  getUserBids,
+  endAuction,
 } from "./db";
-import { products, orders, orderItems, ratings, categories, transactions, cart, users, conversations, messages } from "../drizzle/schema";
+import { products, orders, orderItems, ratings, categories, transactions, cart, users, conversations, messages, auctions, bids } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 
 export const appRouter = router({
@@ -323,6 +330,120 @@ export const appRouter = router({
       .input(z.number())
       .mutation(async ({ ctx, input }) => {
         await markMessagesAsRead(input, ctx.user.id);
+        return { success: true };
+      }),
+  }),
+  auction: router({
+    // Create a new auction
+    create: protectedProcedure
+      .input(z.object({
+        productId: z.number(),
+        startPrice: z.number().positive(),
+        durationHours: z.enum(["12", "24", "36", "48", "72"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const product = await getProductById(input.productId);
+        if (!product || product.sellerId !== ctx.user.id) {
+          throw new Error("Product not found or you are not the seller");
+        }
+
+        const endTime = new Date();
+        endTime.setHours(endTime.getHours() + parseInt(input.durationHours));
+
+        const result = await createAuction({
+          productId: input.productId,
+          sellerId: ctx.user.id,
+          startPrice: input.startPrice,
+          currentHighestBid: input.startPrice,
+          startTime: new Date(),
+          endTime,
+          status: "active",
+        });
+
+        return result;
+      }),
+
+    // Get auction by ID
+    getById: publicProcedure
+      .input(z.number())
+      .query(async ({ input }) => {
+        const auction = await getAuctionById(input);
+        if (!auction) return null;
+
+        const bids = await getBidsByAuctionId(input);
+        const product = await getProductById(auction.productId);
+        const seller = await getDb().then(db => db?.select().from(users).where(eq(users.id, auction.sellerId)).limit(1));
+
+        return {
+          ...auction,
+          product,
+          seller: seller && seller.length > 0 ? seller[0] : null,
+          bids: bids.length,
+          bidHistory: bids.map(b => ({
+            amount: b.bidAmount,
+            time: b.createdAt,
+          })),
+        };
+      }),
+
+    // Get all active auctions
+    getActive: publicProcedure
+      .query(async () => {
+        const activeAuctions = await getActiveAuctions();
+        return activeAuctions;
+      }),
+
+    // Place a bid
+    placeBid: protectedProcedure
+      .input(z.object({
+        auctionId: z.number(),
+        bidAmount: z.number().positive(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const auction = await getAuctionById(input.auctionId);
+        if (!auction) throw new Error("Auction not found");
+        if (auction.status !== "active") throw new Error("Auction is not active");
+        if (input.bidAmount <= auction.currentHighestBid) {
+          throw new Error("Bid must be higher than current highest bid");
+        }
+
+        await placeBid({
+          auctionId: input.auctionId,
+          bidderId: ctx.user.id,
+          bidAmount: input.bidAmount,
+          status: "active",
+        });
+
+        // Update auction with new highest bid
+        const db = await getDb();
+        if (db) {
+          await db.update(auctions)
+            .set({
+              currentHighestBid: input.bidAmount,
+              highestBidderId: ctx.user.id,
+              totalBids: auction.totalBids + 1,
+            })
+            .where(eq(auctions.id, input.auctionId));
+        }
+
+        return { success: true };
+      }),
+
+    // Get user's bids
+    getUserBids: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await getUserBids(ctx.user.id);
+      }),
+
+    // End auction (seller only)
+    end: protectedProcedure
+      .input(z.number())
+      .mutation(async ({ ctx, input }) => {
+        const auction = await getAuctionById(input);
+        if (!auction) throw new Error("Auction not found");
+        if (auction.sellerId !== ctx.user.id) throw new Error("You are not the seller");
+
+        await endAuction(input);
         return { success: true };
       }),
   }),

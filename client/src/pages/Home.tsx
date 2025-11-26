@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, ShoppingCart, User, LogOut, Menu, X, Star, Package } from "lucide-react";
+import { Search, ShoppingCart, User, LogOut, Menu, X, Star, Package, Gavel } from "lucide-react";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -23,6 +23,9 @@ export default function Home() {
     categoryId: selectedCategory || undefined,
     limit: 20,
   });
+
+  // Fetch active auctions
+  const { data: auctions = [] } = trpc.auction.getActive.useQuery();
 
   // Main categories for display
   const mainCategories = [
@@ -282,6 +285,72 @@ export default function Home() {
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">لا توجد منتجات متاحة حالياً</p>
+            </div>
+          )}
+        </div>
+
+        {/* Auctions Section */}
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">المزايدات النشطة</h2>
+            <a href="#" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+              عرض الكل →
+            </a>
+          </div>
+
+          {auctions.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {auctions.slice(0, 8).map((auction: any) => (
+                <Card
+                  key={auction.id}
+                  className="hover:shadow-lg transition-shadow cursor-pointer group"
+                  onClick={() => navigate(`/auction/${auction.id}`)}
+                >
+                  <CardContent className="p-0">
+                    {/* Auction Image */}
+                    <div className="relative bg-gray-200 h-48 overflow-hidden rounded-t-lg">
+                      {auction.product?.imageUrls ? (
+                        <img
+                          src={auction.product.imageUrls}
+                          alt={auction.product?.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                          <span className="text-gray-500">صورة المزايدة</span>
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                        مزايدة
+                      </div>
+                    </div>
+
+                    {/* Auction Info */}
+                    <div className="p-3 sm:p-4 flex flex-col h-full">
+                      <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2 text-sm sm:text-base">
+                        {auction.product?.name}
+                      </h3>
+
+                      {/* Current Bid */}
+                      <div className="mb-2 sm:mb-3">
+                        <p className="text-xs text-gray-500 mb-1">أعلى عرض</p>
+                        <p className="text-lg sm:text-xl font-bold text-red-600 break-words">
+                          {auction.currentHighestBid?.toLocaleString()} د.ع
+                        </p>
+                      </div>
+
+                      {/* Time Left */}
+                      <div className="text-xs text-gray-500 mt-auto">
+                        ⏱️ ينتهي قريباً
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">لا توجد مزايدات نشطة حالياً</p>
             </div>
           )}
         </div>

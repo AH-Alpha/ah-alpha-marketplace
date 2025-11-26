@@ -1,6 +1,6 @@
 import { eq, and, or, like, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, orders, orderItems, ratings, categories, transactions, cart, conversations, messages, InsertMessage, InsertConversation } from "../drizzle/schema";
+import { InsertUser, users, products, orders, orderItems, ratings, categories, transactions, cart, conversations, messages, InsertMessage, InsertConversation, auctions, bids, InsertAuction, InsertBid } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -264,4 +264,69 @@ export async function markMessagesAsRead(conversationId: number, receiverId: num
         eq(messages.isRead, false)
       )
     );
+}
+
+
+// Auction functions
+export async function createAuction(auction: InsertAuction) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(auctions).values(auction);
+  return result;
+}
+
+export async function getAuctionById(auctionId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(auctions).where(eq(auctions.id, auctionId)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getAuctionsByProductId(productId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(auctions).where(eq(auctions.productId, productId));
+}
+
+export async function getActiveAuctions() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(auctions).where(eq(auctions.status, "active"));
+}
+
+export async function placeBid(bid: InsertBid) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(bids).values(bid);
+  return result;
+}
+
+export async function getBidsByAuctionId(auctionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(bids).where(eq(bids.auctionId, auctionId)).orderBy(bids.createdAt);
+}
+
+export async function getUserBids(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(bids).where(eq(bids.bidderId, userId)).orderBy(bids.createdAt);
+}
+
+export async function endAuction(auctionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.update(auctions)
+    .set({ status: "ended" })
+    .where(eq(auctions.id, auctionId));
+  
+  return { success: true, auctionId };
 }

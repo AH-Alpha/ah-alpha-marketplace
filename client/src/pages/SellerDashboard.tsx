@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Plus, Edit2, Trash2, Eye, BarChart3, Package, DollarSign, Star } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, BarChart3, Package, DollarSign, Star, Gavel } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useLocation } from "wouter";
 
 export default function SellerDashboard() {
   const { user, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<"products" | "orders" | "analytics">("products");
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [formData, setFormData] = useState<{
@@ -101,13 +103,23 @@ export default function SellerDashboard() {
                 مرحباً بك، {user?.name || "البائع"}
               </p>
             </div>
-            <Button
-              onClick={() => setShowAddProduct(true)}
-              className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              إضافة منتج جديد
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowAddProduct(true)}
+                className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                إضافة منتج جديد
+              </Button>
+              <Button
+                onClick={() => setLocation("/create-auction")}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Gavel className="w-5 h-5" />
+                إنشاء مزايدة
+              </Button>
+            </div>
           </div>
         </div>
       </div>
