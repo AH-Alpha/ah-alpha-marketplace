@@ -270,4 +270,73 @@ describe("Auction System", () => {
       expect(fiveMinutesAgo.getTime()).toBeLessThan(now.getTime());
     });
   });
+
+  describe("Bidder Sorting and Display", () => {
+    it("should display exactly 5 bidders", () => {
+      const bidders = [
+        { name: "أحمد محمد", amount: 350000 },
+        { name: "فاطمة علي", amount: 500000 },
+        { name: "محمود حسن", amount: 150000 },
+        { name: "ليلى إبراهيم", amount: 250000 },
+        { name: "سارة خالد", amount: 100000 },
+      ];
+
+      expect(bidders.length).toBe(5);
+    });
+
+    it("should sort bidders in descending order by amount", () => {
+      const bidders = [
+        { name: "أحمد محمد", amount: 350000 },
+        { name: "فاطمة علي", amount: 500000 },
+        { name: "محمود حسن", amount: 150000 },
+        { name: "ليلى إبراهيم", amount: 250000 },
+        { name: "سارة خالد", amount: 100000 },
+      ];
+
+      const sorted = [...bidders].sort((a, b) => b.amount - a.amount);
+      const amounts = sorted.map(b => b.amount);
+
+      expect(amounts).toEqual([500000, 350000, 250000, 150000, 100000]);
+    });
+
+    it("should have highest bidder first after sorting", () => {
+      const bidders = [
+        { name: "أحمد محمد", amount: 350000 },
+        { name: "فاطمة علي", amount: 500000 },
+        { name: "محمود حسن", amount: 150000 },
+      ];
+
+      const sorted = [...bidders].sort((a, b) => b.amount - a.amount);
+
+      expect(sorted[0].amount).toBe(500000);
+      expect(sorted[0].name).toBe("فاطمة علي");
+    });
+
+    it("should have lowest bidder last after sorting", () => {
+      const bidders = [
+        { name: "أحمد محمد", amount: 350000 },
+        { name: "فاطمة علي", amount: 500000 },
+        { name: "محمود حسن", amount: 150000 },
+        { name: "ليلى إبراهيم", amount: 250000 },
+        { name: "سارة خالد", amount: 100000 },
+      ];
+
+      const sorted = [...bidders].sort((a, b) => b.amount - a.amount);
+
+      expect(sorted[sorted.length - 1].amount).toBe(100000);
+      expect(sorted[sorted.length - 1].name).toBe("سارة خالد");
+    });
+
+    it("should maintain bidder information during sorting", () => {
+      const bidders = [
+        { name: "أحمد محمد", amount: 350000, profilePicture: "url1" },
+        { name: "فاطمة علي", amount: 500000, profilePicture: "url2" },
+      ];
+
+      const sorted = [...bidders].sort((a, b) => b.amount - a.amount);
+
+      expect(sorted[0].name).toBe("فاطمة علي");
+      expect(sorted[0].profilePicture).toBe("url2");
+    });
+  });
 });

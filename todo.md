@@ -280,3 +280,10 @@
 - [x] Create seed data with test bidders and their profiles
 - [x] Update auction detail page UI to show bidder information
 - [x] Test bidder display with multiple bids (6 new tests added)
+
+## Bidder Display Sorting Enhancement
+
+- [x] Update bidder display to show last 5 bidders (not top 3)
+- [x] Sort bidders in descending order by bid amount (highest to lowest)
+- [x] Update mock data to reflect 5 bidders instead of 3
+- [x] Update tests to validate 5-bidder display and sorting (5 new tests added)

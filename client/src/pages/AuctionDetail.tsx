@@ -127,8 +127,8 @@ export default function AuctionDetail() {
   const isAuctionEnded = auction.status !== "active";
   const isHighestBidder = false; // TODO: Implement when bid data is available
 
-  // Mock bidder data for display
-  const mockBidders = [
+  // Mock bidder data for display - Last 5 bidders sorted by amount (descending)
+  const mockBiddersUnsorted = [
     {
       name: "أحمد محمد",
       profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed",
@@ -138,8 +138,8 @@ export default function AuctionDetail() {
     {
       name: "فاطمة علي",
       profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Fatima",
-      amount: 250000,
-      time: new Date(Date.now() - 15 * 60 * 1000),
+      amount: 500000,
+      time: new Date(Date.now() - 2 * 60 * 1000),
     },
     {
       name: "محمود حسن",
@@ -147,7 +147,22 @@ export default function AuctionDetail() {
       amount: 150000,
       time: new Date(Date.now() - 25 * 60 * 1000),
     },
+    {
+      name: "ليلى إبراهيم",
+      profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Layla",
+      amount: 250000,
+      time: new Date(Date.now() - 15 * 60 * 1000),
+    },
+    {
+      name: "سارة خالد",
+      profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+      amount: 100000,
+      time: new Date(Date.now() - 35 * 60 * 1000),
+    },
   ];
+
+  // Sort bidders by amount in descending order (highest to lowest)
+  const mockBidders = [...mockBiddersUnsorted].sort((a, b) => b.amount - a.amount);
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
@@ -267,13 +282,13 @@ export default function AuctionDetail() {
         {/* Top Bidders Section */}
         <Card className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
           <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <span>🏆</span>
-            أفضل المزايدين
+            <span>💰</span>
+            آخر 5 مزايدين (مرتب تنازلي)
           </h3>
 
           {mockBidders && mockBidders.length > 0 ? (
             <div className="space-y-4">
-              {mockBidders.map((bidder: any, index: number) => (
+              {mockBidders.slice(0, 5).map((bidder: any, index: number) => (
                 <div
                   key={index}
                   className="flex items-center gap-4 p-4 bg-white rounded-lg border border-blue-100 hover:shadow-md transition-shadow"
