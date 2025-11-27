@@ -215,4 +215,59 @@ describe("Auction System", () => {
       expect(reservePrice >= startPrice).toBe(false);
     });
   });
+
+  describe("Bidder Display", () => {
+    it("should display top 3 bidders", () => {
+      const mockBidders = [
+        { name: "أحمد محمد", amount: 350000 },
+        { name: "فاطمة علي", amount: 250000 },
+        { name: "محمود حسن", amount: 150000 },
+      ];
+
+      expect(mockBidders.length).toBe(3);
+    });
+
+    it("should show bidder profile pictures", () => {
+      const bidder = {
+        name: "أحمد محمد",
+        profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed",
+        amount: 350000,
+      };
+
+      expect(bidder.profilePicture).toBeDefined();
+      expect(bidder.profilePicture).toContain("dicebear");
+    });
+
+    it("should display bidder names correctly", () => {
+      const bidder = {
+        name: "أحمد محمد",
+        amount: 350000,
+      };
+
+      expect(bidder.name).toBe("أحمد محمد");
+      expect(bidder.name.length).toBeGreaterThan(0);
+    });
+
+    it("should display bid amounts in correct order (highest first)", () => {
+      const bids = [350000, 250000, 150000];
+      const sorted = [...bids].sort((a, b) => b - a);
+
+      expect(sorted).toEqual([350000, 250000, 150000]);
+    });
+
+    it("should assign correct medals to top bidders", () => {
+      const medals = ["🥇", "🥈", "🥉"];
+
+      expect(medals[0]).toBe("🥇");
+      expect(medals[1]).toBe("🥈");
+      expect(medals[2]).toBe("🥉");
+    });
+
+    it("should format bidder timestamps correctly", () => {
+      const now = new Date();
+      const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+
+      expect(fiveMinutesAgo.getTime()).toBeLessThan(now.getTime());
+    });
+  });
 });

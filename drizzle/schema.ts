@@ -25,6 +25,7 @@ export const users = mysqlTable("users", {
   averageRating: decimal("averageRating", { precision: 3, scale: 2 }).default("0.00"),
   sellerName: text("sellerName"), // For sellers
   sellerDescription: text("sellerDescription"),
+  profilePicture: text("profilePicture"), // Profile picture URL
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

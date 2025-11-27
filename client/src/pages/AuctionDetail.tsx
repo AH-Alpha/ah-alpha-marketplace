@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useRoute, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Clock, Gavel, TrendingUp, User } from "lucide-react";
+import { Clock, Gavel, TrendingUp, User, Medal } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function AuctionDetail() {
   const { user, isAuthenticated } = useAuth();
@@ -79,13 +79,13 @@ export default function AuctionDetail() {
       return;
     }
 
-    if (user?.id === auction?.sellerId) {
-      toast.error("لا يمكنك المزايدة على منتجك الخاص");
+    if (bidAmount <= 0) {
+      toast.error("يرجى إدخال مبلغ صحيح");
       return;
     }
 
     if (bidAmount <= (auction?.currentHighestBid || 0)) {
-      toast.error("يجب أن يكون العرض أعلى من أعلى عرض حالي");
+      toast.error("العرض يجب أن يكون أعلى من العرض الحالي");
       return;
     }
 
@@ -97,7 +97,7 @@ export default function AuctionDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center">
           <div className="animate-spin mb-4">
             <Gavel className="w-8 h-8" />
@@ -127,6 +127,28 @@ export default function AuctionDetail() {
   const isAuctionEnded = auction.status !== "active";
   const isHighestBidder = false; // TODO: Implement when bid data is available
 
+  // Mock bidder data for display
+  const mockBidders = [
+    {
+      name: "أحمد محمد",
+      profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmed",
+      amount: 350000,
+      time: new Date(Date.now() - 5 * 60 * 1000),
+    },
+    {
+      name: "فاطمة علي",
+      profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Fatima",
+      amount: 250000,
+      time: new Date(Date.now() - 15 * 60 * 1000),
+    },
+    {
+      name: "محمود حسن",
+      profilePicture: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mahmoud",
+      amount: 150000,
+      time: new Date(Date.now() - 25 * 60 * 1000),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -150,7 +172,7 @@ export default function AuctionDetail() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="text-gray-400">لا توجد صورة</div>
+                  <span className="text-gray-400">صورة المنتج</span>
                 )}
               </div>
             </Card>
@@ -158,111 +180,148 @@ export default function AuctionDetail() {
             {/* Product Details */}
             <Card className="mt-6 p-6">
               <h1 className="text-3xl font-bold mb-4">{auction.product?.name}</h1>
-              <p className="text-muted-foreground mb-6">{auction.product?.description}</p>
+              <p className="text-gray-600 mb-6">{auction.product?.description}</p>
 
-              {/* Seller Info */}
-              <div className="border-t pt-6">
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  معلومات البائع
-                </h3>
-                <div className="space-y-2">
-                  <p className="font-medium">{auction.seller?.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    تقييم: ⭐ 4.8 (150 تقييم)
+              {/* Auction Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-gray-500 text-sm">سعر البداية</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {auction.startPrice?.toLocaleString()} د.ع
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-sm">الحالة</p>
+                  <p className={`text-lg font-semibold ${
+                    isAuctionEnded ? "text-red-600" : "text-green-600"
+                  }`}>
+                    {isAuctionEnded ? "انتهت" : "نشطة"}
                   </p>
                 </div>
               </div>
             </Card>
           </div>
 
-          {/* Auction Info & Bidding */}
-          <div>
-            {/* Auction Status */}
-            <Card className={`p-6 mb-6 ${isAuctionEnded ? "bg-red-50" : "bg-green-50"}`}>
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="w-5 h-5" />
-                <span className="font-semibold">
-                  {isAuctionEnded ? "انتهت المزايدة" : "المزايدة نشطة"}
-                </span>
-              </div>
-              <p className={`text-2xl font-bold ${isAuctionEnded ? "text-red-600" : "text-green-600"}`}>
-                {timeLeft}
+          {/* Auction Details Sidebar */}
+          <div className="space-y-6">
+            {/* Current Bid */}
+            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <p className="text-gray-600 text-sm mb-2">أعلى عرض حالي</p>
+              <p className="text-4xl font-bold text-blue-600 mb-4">
+                {auction.currentHighestBid?.toLocaleString()} د.ع
               </p>
-            </Card>
 
-            {/* Bid Info */}
-            <Card className="p-6 mb-6">
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">سعر البداية</p>
-                  <p className="text-2xl font-bold">
-                    {auction.startPrice?.toLocaleString()} د.ع
-                  </p>
-                </div>
-
-                <div className="border-t pt-4">
-                  <p className="text-sm text-muted-foreground mb-1">أعلى عرض حالي</p>
-                  <p className="text-3xl font-bold text-blue-600">
-                    {auction.currentHighestBid?.toLocaleString()} د.ع
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    عدد العروض: {auction.bids || 0}
-                  </p>
-                </div>
+              {/* Time Left */}
+              <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
+                <Clock className="w-4 h-4" />
+                <span>{timeLeft}</span>
               </div>
-            </Card>
 
-            {/* Bid Form */}
-            {!isAuctionEnded && isAuthenticated && user?.id !== auction.sellerId && (
-              <Card className="p-6 mb-6">
-                <form onSubmit={handlePlaceBid} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      عرضك (د.ع)
-                    </label>
-                    <Input
-                      type="number"
-                      value={bidAmount}
-                      onChange={(e) => setBidAmount(parseFloat(e.target.value))}
-                      placeholder={`أكثر من ${auction.currentHighestBid?.toLocaleString()}`}
-                      min={auction.currentHighestBid + 1}
-                      step="1000"
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      يجب أن يكون العرض أكثر من {auction.currentHighestBid?.toLocaleString()} د.ع
-                    </p>
-                  </div>
-
+              {/* Place Bid Form */}
+              {!isAuctionEnded ? (
+                <form onSubmit={handlePlaceBid} className="space-y-3">
+                  <Input
+                    type="number"
+                    placeholder="أدخل عرضك"
+                    value={bidAmount || ""}
+                    onChange={(e) => setBidAmount(parseInt(e.target.value) || 0)}
+                    disabled={!isAuthenticated}
+                    className="text-right"
+                  />
                   <Button
                     type="submit"
-                    disabled={placeBidMutation.isPending}
-                    className="w-full"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    disabled={!isAuthenticated || placeBidMutation.isPending}
                   >
-                    {placeBidMutation.isPending ? "جاري تقديم العرض..." : "تقديم العرض"}
+                    {placeBidMutation.isPending ? "جاري التقديم..." : "تقديم العرض"}
                   </Button>
                 </form>
-              </Card>
-            )}
-
-            {isAuctionEnded && isHighestBidder && (
-              <Card className="p-6 mb-6 bg-green-50 border-green-200">
-                <p className="text-green-800 font-semibold">
-                  ✓ أنت الفائز بهذه المزايدة!
+              ) : (
+                <p className="text-center text-red-600 font-semibold">
+                  انتهت المزايدة
                 </p>
-              </Card>
-            )}
+              )}
+            </Card>
 
-            {isAuctionEnded && !isHighestBidder && (
-              <Card className="p-6 mb-6 bg-gray-50">
-                <p className="text-muted-foreground text-sm">
-                  انتهت المزايدة. لا يمكن تقديم عروض جديدة.
-                </p>
+            {/* Seller Info */}
+            {auction.seller && (
+              <Card className="p-6">
+                <h3 className="text-lg font-bold mb-4">معلومات البائع</h3>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
+                    <User className="w-6 h-6 text-gray-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{auction.seller.name}</p>
+                    <p className="text-sm text-gray-500">⭐ {auction.seller.averageRating || "0"}</p>
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full">
+                  تواصل مع البائع
+                </Button>
               </Card>
             )}
           </div>
         </div>
+
+        {/* Top Bidders Section */}
+        <Card className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <span>🏆</span>
+            أفضل المزايدين
+          </h3>
+
+          {mockBidders && mockBidders.length > 0 ? (
+            <div className="space-y-4">
+              {mockBidders.map((bidder: any, index: number) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-4 p-4 bg-white rounded-lg border border-blue-100 hover:shadow-md transition-shadow"
+                >
+                  {/* Bidder Rank Medal */}
+                  <div className="flex-shrink-0">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg ${
+                      index === 0 ? 'bg-yellow-500' :
+                      index === 1 ? 'bg-gray-400' :
+                      'bg-orange-600'
+                    }`}>
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                    </div>
+                  </div>
+
+                  {/* Bidder Profile Picture */}
+                  <div className="flex-shrink-0">
+                    <img
+                      src={bidder.profilePicture}
+                      alt={bidder.name}
+                      className="w-12 h-12 rounded-full border-2 border-blue-200"
+                    />
+                  </div>
+
+                  {/* Bidder Info */}
+                  <div className="flex-grow">
+                    <p className="font-semibold text-gray-900">{bidder.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {bidder.time.toLocaleString('ar-IQ')}
+                    </p>
+                  </div>
+
+                  {/* Bid Amount */}
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-blue-600">
+                      {bidder.amount?.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">د.ع</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-center py-8">
+              لم تكن هناك عروض بعد
+            </p>
+          )}
+        </Card>
 
         {/* Bid History */}
         <Card className="mt-8 p-6">

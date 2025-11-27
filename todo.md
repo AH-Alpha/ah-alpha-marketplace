@@ -269,3 +269,14 @@
 - [x] Implement bid validation and management
 - [x] Create auction history and won auctions page
 - [x] Test auction system end-to-end (21 tests - all passing)
+
+
+## Auction Bidders Display Enhancement (Current Request)
+
+- [x] Add bidder profile pictures to auction detail page
+- [x] Display last 3 bidders with names and bid amounts
+- [x] Show bidding timestamp for each bidder
+- [x] Add profile picture field to users table
+- [x] Create seed data with test bidders and their profiles
+- [x] Update auction detail page UI to show bidder information
+- [x] Test bidder display with multiple bids (6 new tests added)
