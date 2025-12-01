@@ -1,6 +1,6 @@
 import { eq, and, or, like, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, products, orders, orderItems, ratings, categories, transactions, cart, conversations, messages, InsertMessage, InsertConversation, auctions, bids, InsertAuction, InsertBid } from "../drizzle/schema";
+import { InsertUser, users, products, orders, orderItems, ratings, categories, transactions, cart, conversations, messages, InsertMessage, InsertConversation, auctions, bids, InsertAuction, InsertBid, emailVerificationTokens, InsertEmailVerificationToken, sellerProfiles, InsertSellerProfile, SellerProfile } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -329,4 +329,85 @@ export async function endAuction(auctionId: number) {
     .where(eq(auctions.id, auctionId));
   
   return { success: true, auctionId };
+}
+
+// Email Verification Functions
+export async function createEmailVerificationToken(email: string, code: string, expiresInMinutes: number = 15): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create verification token: database not available");
+    return;
+  }
+
+  const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
+  
+  await db.insert(emailVerificationTokens).values({
+    email,
+    code,
+    expiresAt,
+  });
+}
+
+export async function verifyEmailCode(email: string, code: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const token = await db.select()
+    .from(emailVerificationTokens)
+    .where(eq(emailVerificationTokens.email, email))
+    .orderBy(desc(emailVerificationTokens.createdAt))
+    .limit(1);
+
+  if (token.length === 0) return false;
+
+  const verificationToken = token[0];
+  const isValid = verificationToken.code === code && 
+                  !verificationToken.isUsed && 
+                  verificationToken.expiresAt > new Date();
+
+  if (isValid) {
+    await db.update(emailVerificationTokens)
+      .set({ isUsed: true })
+      .where(eq(emailVerificationTokens.id, verificationToken.id));
+  }
+
+  return isValid;
+}
+
+// Seller Profile Functions
+export async function createSellerProfile(userId: number, profile: InsertSellerProfile): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create seller profile: database not available");
+    return;
+  }
+
+  await db.insert(sellerProfiles).values({
+    ...profile,
+    userId,
+  });
+}
+
+export async function getSellerProfile(userId: number): Promise<SellerProfile | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select()
+    .from(sellerProfiles)
+    .where(eq(sellerProfiles.userId, userId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateSellerProfile(userId: number, updates: Partial<InsertSellerProfile>): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update seller profile: database not available");
+    return;
+  }
+
+  await db.update(sellerProfiles)
+    .set(updates)
+    .where(eq(sellerProfiles.userId, userId));
 }

@@ -32,6 +32,7 @@ import {
 } from "./db";
 import { products, orders, orderItems, ratings, categories, transactions, cart, users, conversations, messages, auctions, bids } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
+import { authRouter } from "./routers/auth";
 
 export const appRouter = router({
   system: systemRouter,
@@ -44,6 +45,10 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+    sendVerificationCode: authRouter.sendVerificationCode,
+    verifyEmailCode: authRouter.verifyEmailCode,
+    createSellerProfile: authRouter.createSellerProfile,
+    getSellerProfile: authRouter.getSellerProfile,
   }),
 
   // Marketplace routers

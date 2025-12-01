@@ -13,6 +13,9 @@ import Orders from "./pages/Orders";
 import Messages from "./pages/Messages";
 import CreateAuction from "./pages/CreateAuction";
 import AuctionDetail from "./pages/AuctionDetail";
+import Register from "./pages/Register";
+import RegisterEmail from "./pages/RegisterEmail";
+import RegisterProfile from "./pages/RegisterProfile";
 
 function Router() {
   return (
@@ -28,6 +31,9 @@ function Router() {
       <Route path={"/:id"} component={ProductDetail} />
       <Route path={"/create-auction"} component={CreateAuction} />
       <Route path={"/auction/:id"} component={AuctionDetail} />
+      <Route path={"/register"} component={Register} />
+      <Route path={"/register/email"} component={RegisterEmail} />
+      <Route path={"/register/profile"} component={RegisterProfile} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>

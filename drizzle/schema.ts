@@ -200,3 +200,33 @@ export type Bid = typeof bids.$inferSelect;
 export type InsertBid = typeof bids.$inferInsert;
 
 // TODO: Add your tables here
+// Email Verification Tokens table
+export const emailVerificationTokens = mysqlTable("emailVerificationTokens", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  code: varchar("code", { length: 6 }).notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  isUsed: boolean("isUsed").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EmailVerificationToken = typeof emailVerificationTokens.$inferSelect;
+export type InsertEmailVerificationToken = typeof emailVerificationTokens.$inferInsert;
+
+// Seller Profile table
+export const sellerProfiles = mysqlTable("sellerProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  storeName: varchar("storeName", { length: 255 }).notNull(),
+  storeDescription: text("storeDescription"),
+  storeLogoUrl: text("storeLogoUrl"),
+  phoneNumber: varchar("phoneNumber", { length: 20 }).notNull(),
+  address: text("address").notNull(),
+  governorate: varchar("governorate", { length: 100 }).notNull(),
+  isVerified: boolean("isVerified").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SellerProfile = typeof sellerProfiles.$inferSelect;
+export type InsertSellerProfile = typeof sellerProfiles.$inferInsert;
