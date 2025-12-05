@@ -6,6 +6,7 @@ import { Star, ShoppingCart, Heart, ChevronLeft, ChevronRight, MessageSquare } f
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
+import { getLoginUrl } from "@/const";
 
 export default function ProductDetail() {
   const [, params] = useRoute("/product/:id");
@@ -100,6 +101,7 @@ export default function ProductDetail() {
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
       toast.error("يرجى تسجيل الدخول أولاً");
+      navigate(getLoginUrl());
       return;
     }
 

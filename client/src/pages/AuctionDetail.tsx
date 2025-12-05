@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Clock, Gavel, TrendingUp, User, Medal } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getLoginUrl } from "@/const";
 
 export default function AuctionDetail() {
   const { user, isAuthenticated } = useAuth();
@@ -76,6 +77,7 @@ export default function AuctionDetail() {
 
     if (!isAuthenticated) {
       toast.error("يرجى تسجيل الدخول أولاً");
+      window.location.href = getLoginUrl();
       return;
     }
 

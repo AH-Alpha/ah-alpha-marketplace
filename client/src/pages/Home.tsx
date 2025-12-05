@@ -108,11 +108,18 @@ export default function Home() {
                   </button>
                 </>
               ) : (
-                <a href={getLoginUrl()}>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    تسجيل الدخول
-                  </Button>
-                </a>
+                <div className="flex items-center gap-2">
+                  <a href="/register">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                      تسجيل
+                    </Button>
+                  </a>
+                  <a href={getLoginUrl()}>
+                    <Button className="bg-white hover:bg-gray-100 text-gray-900 border border-gray-300">
+                      تسجيل الدخول
+                    </Button>
+                  </a>
+                </div>
               )}
 
               {/* Mobile Menu Toggle */}

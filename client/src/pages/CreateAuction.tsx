@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
-
+import { getLoginUrl } from "@/const";
 export default function CreateAuction() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
@@ -74,9 +74,14 @@ export default function CreateAuction() {
           <p className="text-muted-foreground mb-6">
             يجب عليك تسجيل الدخول لإنشاء مزايدة جديدة
           </p>
-          <Button onClick={() => setLocation("/")} className="w-full">
-            العودة للرئيسية
-          </Button>
+          <div className="flex gap-3">
+            <Button onClick={() => setLocation("/")} variant="outline" className="flex-1">
+              العودة للرئيسية
+            </Button>
+            <Button onClick={() => window.location.href = getLoginUrl()} className="flex-1">
+              تسجيل الدخول
+            </Button>
+          </div>
         </Card>
       </div>
     );

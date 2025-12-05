@@ -345,3 +345,14 @@
 - [x] Add loading states during API calls
 - [x] Add success confirmations
 - [x] Ensure full RTL Arabic support
+
+
+## Navbar & Authentication Guards (Current Sprint)
+
+- [x] Update navbar register button color to blue
+- [x] Update navbar login button color to white
+- [x] Add authentication guard to add-to-cart action
+- [x] Add authentication guard to create-auction action
+- [x] Add authentication guard to place-bid action
+- [x] Show login redirect modal when user tries protected action
+- [x] Test all protected actions (34 tests added)
