@@ -222,5 +222,40 @@
 - [x] Update login page with email/password form
 - [x] Update register page (kept both Google and Email options)
 - [x] Keep Google OAuth functionality intact
-- [ ] Test complete authentication flow
-- [ ] Update GitHub repository with changes
+- [x] Test complete authentication flow
+- [x] Update GitHub repository with changes
+
+---
+
+## 🚀 NEW REQUEST: Deploy to Railway (Standalone)
+
+### Phase 1: Remove Manus Dependencies
+- [x] Remove Google OAuth (Manus-based)
+- [x] Remove Manus Notification API
+- [x] Remove Manus OAuth callback routes
+- [x] Update authentication to be fully independent
+
+### Phase 2: Independent Email System
+- [x] Install Nodemailer package
+- [x] Configure Gmail SMTP or alternative
+- [x] Replace email sending functions
+- [x] Test email delivery
+
+### Phase 3: Environment Configuration
+- [x] Update environment variables for Railway
+- [x] Remove Manus-specific ENV vars
+- [x] Add SMTP configuration
+- [x] Add database connection string
+
+### Phase 4: Railway Deployment
+- [x] Create railway.json configuration
+- [x] Update package.json scripts
+- [x] Create deployment guide
+- [x] Test build process
+
+### Phase 5: Final Testing
+- [ ] Test registration flow
+- [ ] Test login flow
+- [ ] Test email sending
+- [ ] Save checkpoint
+- [ ] Push to GitHub

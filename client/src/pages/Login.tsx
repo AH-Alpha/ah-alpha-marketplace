@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, LogIn } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -39,9 +39,7 @@ export default function Login() {
     loginMutation.mutate({ email, password });
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = getLoginUrl();
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -104,27 +102,7 @@ export default function Login() {
           </form>
         </Card>
 
-        {/* Divider */}
-        <div className="relative mb-4">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-500">
-              أو
-            </span>
-          </div>
-        </div>
 
-        {/* Google OAuth Button */}
-        <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-blue-500 mb-4"
-          onClick={handleGoogleLogin}
-        >
-          <div className="flex items-center justify-center gap-3">
-            <LogIn className="w-5 h-5 text-blue-600" />
-            <span className="font-semibold text-gray-900">تسجيل الدخول عن طريق Google</span>
-          </div>
-        </Card>
 
         {/* Footer */}
         <div className="text-center">

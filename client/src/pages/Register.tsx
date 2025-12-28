@@ -2,17 +2,14 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Mail, LogIn } from "lucide-react";
+import { Mail } from "lucide-react";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 
 export default function Register() {
   const [, setLocation] = useLocation();
   const [selectedMethod, setSelectedMethod] = useState<"google" | "email" | null>(null);
 
-  const handleGoogleLogin = () => {
-    // Redirect to Google OAuth login
-    window.location.href = getLoginUrl();
-  };
+
 
   const handleEmailSignup = () => {
     setLocation("/register/email");
@@ -30,35 +27,19 @@ export default function Register() {
           <p className="text-gray-600">انضم إلى أكبر سوق إلكتروني في العراق</p>
         </div>
 
-        {/* Registration Methods */}
+        {/* Registration Method */}
         <div className="space-y-4">
-          {/* Google OAuth Button */}
-          <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-blue-500"
-            onClick={handleGoogleLogin}
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <LogIn className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="flex-grow">
-                <h3 className="font-semibold text-gray-900">تسجيل عن طريق Google</h3>
-                <p className="text-sm text-gray-500">دخول فوري وآمن</p>
-              </div>
-              <div className="text-2xl">→</div>
-            </div>
-          </Card>
-
           {/* Email Signup Button */}
-          <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-green-500"
+          <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 border-transparent hover:border-blue-500"
             onClick={handleEmailSignup}
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Mail className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Mail className="w-6 h-6 text-blue-600" />
               </div>
               <div className="flex-grow">
-                <h3 className="font-semibold text-gray-900">تسجيل عن طريق البريد الإلكتروني</h3>
-                <p className="text-sm text-gray-500">إنشاء حساب جديد</p>
+                <h3 className="font-semibold text-gray-900">إنشاء حساب جديد</h3>
+                <p className="text-sm text-gray-500">التسجيل عن طريق البريد الإلكتروني</p>
               </div>
               <div className="text-2xl">→</div>
             </div>
