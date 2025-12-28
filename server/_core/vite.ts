@@ -3,8 +3,13 @@ import fs from "fs";
 import { type Server } from "http";
 import { nanoid } from "nanoid";
 import path from "path";
+import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
+
+// Polyfill for __dirname in ESM (Node.js v18 compatibility)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -26,7 +31,7 @@ export async function setupVite(app: Express, server: Server) {
 
     try {
       const clientTemplate = path.resolve(
-        import.meta.dirname ?? __dirname,
+        __dirname,
         "../..",
         "client",
         "index.html"
@@ -50,8 +55,8 @@ export async function setupVite(app: Express, server: Server) {
 export function serveStatic(app: Express) {
   // In production, dist folder is at the same level as server code
   const distPath = process.env.NODE_ENV === "development"
-    ? path.resolve(import.meta.dirname ?? __dirname, "../..", "dist", "public")
-    : path.resolve(import.meta.dirname ?? __dirname, "..", "public");
+    ? path.resolve(__dirname, "../..", "dist", "public")
+    : path.resolve(__dirname, "..", "public");
   
   console.log(`[Static] Serving from: ${distPath}`);
   
@@ -60,7 +65,7 @@ export function serveStatic(app: Express) {
       `[Static] ERROR: Could not find the build directory: ${distPath}`
     );
     console.error(`[Static] Current directory: ${process.cwd()}`);
-    console.error(`[Static] __dirname: ${import.meta.dirname ?? __dirname}`);
+    console.error(`[Static] __dirname: ${__dirname}`);
   }
 
   app.use(express.static(distPath));

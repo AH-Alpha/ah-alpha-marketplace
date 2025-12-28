@@ -274,6 +274,24 @@ Error: `OAUTH_SERVER_URL is not configured` and `paths[0] argument must be of ty
 - [x] Make OAuth system optional/disabled
 - [x] Update context.ts to work without OAuth
 - [x] Test server starts without OAuth env vars
+- [x] Save checkpoint
+- [x] Push to GitHub
+- [x] Ready for Railway deployment
+
+
+---
+
+## 🔧 URGENT FIX: import.meta.dirname undefined in Node.js v18
+
+### Issue: paths[0] argument must be of type string. Received undefined
+Error at: file:///app/dist/index.js:1645:17
+Cause: import.meta.dirname is undefined in Node.js v18.20.5
+
+### Tasks:
+- [x] Create __dirname polyfill for ESM modules
+- [x] Replace all import.meta.dirname with polyfill
+- [x] Update vite.ts to use polyfill
+- [x] Test build and production mode
 - [ ] Save checkpoint
 - [ ] Push to GitHub
 - [ ] Verify Railway deployment works
