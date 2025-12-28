@@ -236,23 +236,62 @@ export default function AuctionDetail() {
 
               {/* Place Bid Form */}
               {!isAuctionEnded ? (
-                <form onSubmit={handlePlaceBid} className="space-y-3">
-                  <Input
-                    type="number"
-                    placeholder="أدخل عرضك"
-                    value={bidAmount || ""}
-                    onChange={(e) => setBidAmount(parseInt(e.target.value) || 0)}
-                    disabled={!isAuthenticated}
-                    className="text-right"
-                  />
-                  <Button
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                    disabled={!isAuthenticated || placeBidMutation.isPending}
-                  >
-                    {placeBidMutation.isPending ? "جاري التقديم..." : "تقديم العرض"}
-                  </Button>
-                </form>
+                <div className="space-y-4">
+                  {/* Quick Bid Buttons */}
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600 font-medium">زيادة سريعة:</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setBidAmount((auction.currentHighestBid || 0) + 10000)}
+                        disabled={!isAuthenticated}
+                        className="text-xs"
+                      >
+                        +10K
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setBidAmount((auction.currentHighestBid || 0) + 50000)}
+                        disabled={!isAuthenticated}
+                        className="text-xs"
+                      >
+                        +50K
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setBidAmount((auction.currentHighestBid || 0) + 100000)}
+                        disabled={!isAuthenticated}
+                        className="text-xs"
+                      >
+                        +100K
+                      </Button>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handlePlaceBid} className="space-y-3">
+                    <Input
+                      type="number"
+                      placeholder="أدخل عرضك"
+                      value={bidAmount || ""}
+                      onChange={(e) => setBidAmount(parseInt(e.target.value) || 0)}
+                      disabled={!isAuthenticated}
+                      className="text-right"
+                    />
+                    <Button
+                      type="submit"
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      disabled={!isAuthenticated || placeBidMutation.isPending}
+                    >
+                      {placeBidMutation.isPending ? "جاري التقديم..." : "تقديم العرض"}
+                    </Button>
+                  </form>
+                </div>
               ) : (
                 <p className="text-center text-red-600 font-semibold">
                   انتهت المزايدة

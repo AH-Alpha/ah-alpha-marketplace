@@ -43,6 +43,13 @@
       "when": 1764564053156,
       "tag": "0005_third_ultimatum",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1766939552077,
+      "tag": "0006_wakeful_red_shift",
+      "breakpoints": true
     }
   ]
 }

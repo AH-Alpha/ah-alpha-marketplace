@@ -29,6 +29,12 @@ import {
   getBidsByAuctionId,
   getUserBids,
   endAuction,
+  checkUsernameAvailable,
+  updateUsername,
+  createOrder,
+  getOrderById,
+  updateOrderStatus,
+  clearCart,
 } from "./db";
 import { products, orders, orderItems, ratings, categories, transactions, cart, users, conversations, messages, auctions, bids } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
@@ -110,7 +116,7 @@ export const appRouter = router({
       .input(z.object({
         isBuyer: z.boolean().default(true),
       }))
-      .query(({ ctx, input }) => getUserOrders(ctx.user.id, input.isBuyer)),
+      .query(({ ctx, input }) => getUserOrders(ctx.user.id, input.isBuyer ? "buyer" : "seller")),
     
     detail: publicProcedure
       .input(z.number())
@@ -235,6 +241,20 @@ export const appRouter = router({
       
       return { success: true, amount: 5000 };
     }),
+
+    checkUsername: publicProcedure
+      .input(z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/))
+      .query(async ({ input }) => {
+        const available = await checkUsernameAvailable(input);
+        return { available };
+      }),
+
+    setUsername: protectedProcedure
+      .input(z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/))
+      .mutation(async ({ ctx, input }) => {
+        await updateUsername(ctx.user.id, input);
+        return { success: true, username: input };
+      }),
 
     updateProfile: protectedProcedure
       .input(z.object({
@@ -470,6 +490,57 @@ export const appRouter = router({
         if (auction.sellerId !== ctx.user.id) throw new Error("You are not the seller");
 
         await endAuction(input);
+        return { success: true };
+      }),
+  }),
+
+  order: router({
+    create: protectedProcedure
+      .input(z.object({
+        sellerId: z.number(),
+        items: z.array(z.object({
+          productId: z.number(),
+          quantity: z.number(),
+          priceAtPurchase: z.number(),
+        })),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const orderId = await createOrder({
+          buyerId: ctx.user.id,
+          sellerId: input.sellerId,
+          items: input.items,
+        });
+        
+        // Clear cart after order
+        await clearCart(ctx.user.id);
+        
+        return { success: true, orderId };
+      }),
+
+    getById: protectedProcedure
+      .input(z.number())
+      .query(async ({ input }) => {
+        return getOrderById(input);
+      }),
+
+    myOrders: protectedProcedure
+      .query(async ({ ctx }) => {
+        return getUserOrders(ctx.user.id, "buyer");
+      }),
+
+    mySales: protectedProcedure
+      .query(async ({ ctx }) => {
+        return getUserOrders(ctx.user.id, "seller");
+      }),
+
+    updateStatus: protectedProcedure
+      .input(z.object({
+        orderId: z.number(),
+        status: z.enum(["pending", "confirmed", "shipped", "delivered", "cancelled", "disputed"]),
+        trackingCode: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await updateOrderStatus(input.orderId, input.status, input.trackingCode);
         return { success: true };
       }),
   }),

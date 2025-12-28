@@ -119,15 +119,7 @@ export async function getSellerProducts(sellerId: number) {
   return db.select().from(products).where(eq(products.sellerId, sellerId));
 }
 
-export async function getUserOrders(userId: number, isBuyer = true) {
-  const db = await getDb();
-  if (!db) return [];
-  if (isBuyer) {
-    return db.select().from(orders).where(eq(orders.buyerId, userId));
-  } else {
-    return db.select().from(orders).where(eq(orders.sellerId, userId));
-  }
-}
+// Removed - replaced by new getUserOrders function below
 
 export async function getOrderDetails(orderId: number) {
   const db = await getDb();
@@ -410,4 +402,101 @@ export async function updateSellerProfile(userId: number, updates: Partial<Inser
   await db.update(sellerProfiles)
     .set(updates)
     .where(eq(sellerProfiles.userId, userId));
+}
+
+// Username functions
+export async function checkUsernameAvailable(username: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  
+  const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  return result.length === 0;
+}
+
+export async function updateUsername(userId: number, username: string): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Check if username is already taken
+  const existing = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  if (existing.length > 0 && existing[0].id !== userId) {
+    throw new Error("اسم المستخدم محجوز بالفعل");
+  }
+  
+  await db.update(users).set({ username }).where(eq(users.id, userId));
+}
+
+// ========== Order Management Functions ==========
+
+export async function createOrder(data: {
+  buyerId: number;
+  sellerId: number;
+  items: Array<{ productId: number; quantity: number; priceAtPurchase: number }>;
+}): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Calculate total price and commission
+  const totalPrice = data.items.reduce((sum, item) => sum + (item.priceAtPurchase * item.quantity), 0);
+  const commission = Math.floor(totalPrice * 0.025); // 2.5%
+
+  // Insert order
+  const [orderResult] = await db.insert(orders).values({
+    buyerId: data.buyerId,
+    sellerId: data.sellerId,
+    totalPrice,
+    commission,
+    status: "pending",
+  });
+
+  const orderId = orderResult.insertId;
+
+  // Insert order items
+  for (const item of data.items) {
+    await db.insert(orderItems).values({
+      orderId,
+      productId: item.productId,
+      quantity: item.quantity,
+      priceAtPurchase: item.priceAtPurchase,
+    });
+  }
+
+  return orderId;
+}
+
+export async function getOrderById(orderId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+  if (!order) return null;
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
+  
+  return { ...order, items };
+}
+
+export async function getUserOrders(userId: number, type: "buyer" | "seller") {
+  const db = await getDb();
+  if (!db) return [];
+
+  const condition = type === "buyer" ? eq(orders.buyerId, userId) : eq(orders.sellerId, userId);
+  return db.select().from(orders).where(condition).orderBy(orders.createdAt);
+}
+
+export async function updateOrderStatus(orderId: number, status: string, trackingCode?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = { status };
+  if (trackingCode) updateData.trackingCode = trackingCode;
+
+  await db.update(orders).set(updateData).where(eq(orders.id, orderId));
+}
+
+export async function clearCart(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(cart).where(eq(cart.userId, userId));
 }

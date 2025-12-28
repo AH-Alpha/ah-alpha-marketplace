@@ -1,18 +1,12 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
 import { createEmailVerificationToken, verifyEmailCode, createSellerProfile, getSellerProfile } from "../db";
+import { sendVerificationEmail } from "../_core/email";
 import { TRPCError } from "@trpc/server";
 
 // Helper function to generate 6-digit code
 function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-// Helper function to send email (placeholder - integrate with Manus API)
-async function sendVerificationEmail(email: string, code: string): Promise<void> {
-  // TODO: Integrate with Manus notification API or email service
-  console.log(`[EMAIL] Sending verification code ${code} to ${email}`);
-  // For now, just log it
 }
 
 export const authRouter = router({
