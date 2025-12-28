@@ -292,6 +292,50 @@ Cause: import.meta.dirname is undefined in Node.js v18.20.5
 - [x] Replace all import.meta.dirname with polyfill
 - [x] Update vite.ts to use polyfill
 - [x] Test build and production mode
+- [x] Save checkpoint
+- [x] Push to GitHub
+- [x] Ready for Railway deployment
+
+
+---
+
+## 🔄 Railway Rebuild Required
+
+### Issue: Railway using old dist/index.js
+Railway needs to rebuild with latest __dirname fixes
+
+### Solution:
+- [ ] Trigger Railway redeploy/rebuild
+- [ ] Verify build completes successfully
+- [ ] Test live website works
+
+
+---
+
+## 🚨 CRITICAL: Railway Build Cache Issue
+
+### Problem: Railway not rebuilding with new code
+Railway is using cached dist/index.js that doesn't include __dirname fix
+
+### Solution:
+- [ ] Add .railwayignore to exclude dist folder
+- [ ] Force clean build on Railway
+- [ ] Verify __dirname fix is in compiled output
+- [ ] Test deployment
+
+
+---
+
+## 🚀 NEW REQUEST: Deploy to Render.com (Free Alternative)
+
+### Switch from Railway to Render
+Railway deployment failed repeatedly, switching to Render.com free tier
+
+### Tasks:
+- [x] Create render.yaml configuration
+- [x] Update build and start scripts for Render
+- [x] Create Render deployment guide
+- [x] Document environment variables setup
+- [ ] Test deployment on Render
 - [ ] Save checkpoint
 - [ ] Push to GitHub
-- [ ] Verify Railway deployment works
