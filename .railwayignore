@@ -1,0 +1,4 @@
+# Force Railway to rebuild from source
+dist/
+node_modules/
+.git/
