@@ -89,6 +89,45 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUser(userData: {
+  email: string;
+  password: string;
+  username: string;
+  name: string;
+  loginMethod: string;
+}): Promise<number> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("[Database] Cannot create user: database not available");
+  }
+
+  const [result] = await db.insert(users).values({
+    email: userData.email,
+    password: userData.password,
+    username: userData.username,
+    name: userData.name,
+    loginMethod: userData.loginMethod,
+    openId: null,
+    role: "user",
+    userType: "buyer",
+    balance: 5000, // Welcome bonus
+  });
+
+  return Number(result.insertId);
+}
+
 // Marketplace queries
 
 export async function getProductsByCategory(categoryId: number, limit = 20, offset = 0) {

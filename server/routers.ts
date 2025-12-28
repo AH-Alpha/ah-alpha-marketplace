@@ -51,6 +51,8 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+    registerWithEmail: authRouter.registerWithEmail,
+    loginWithEmail: authRouter.loginWithEmail,
     sendVerificationCode: authRouter.sendVerificationCode,
     verifyEmailCode: authRouter.verifyEmailCode,
     createSellerProfile: authRouter.createSellerProfile,

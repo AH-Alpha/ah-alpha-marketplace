@@ -1,8 +1,13 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../_core/trpc";
-import { createEmailVerificationToken, verifyEmailCode, createSellerProfile, getSellerProfile } from "../db";
+import { createEmailVerificationToken, verifyEmailCode, createSellerProfile, getSellerProfile, getUserByEmail, createUser } from "../db";
 import { sendVerificationEmail } from "../_core/email";
 import { TRPCError } from "@trpc/server";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { ENV } from "../_core/env";
+import { COOKIE_NAME } from "@shared/const";
+import { getSessionCookieOptions } from "../_core/cookies";
 
 // Helper function to generate 6-digit code
 function generateVerificationCode(): string {
@@ -10,6 +15,120 @@ function generateVerificationCode(): string {
 }
 
 export const authRouter = router({
+  // Register with email and password
+  registerWithEmail: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+      password: z.string().min(6),
+      username: z.string().min(3).max(20),
+      name: z.string().min(2),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Check if user already exists
+        const existingUser = await getUserByEmail(input.email);
+        if (existingUser) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "البريد الإلكتروني مستخدم بالفعل",
+          });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(input.password, 10);
+
+        // Create user
+        const userId = await createUser({
+          email: input.email,
+          password: hashedPassword,
+          username: input.username,
+          name: input.name,
+          loginMethod: "email",
+        });
+
+        // Create session token
+        const token = jwt.sign(
+          { userId, email: input.email },
+          ENV.jwtSecret,
+          { expiresIn: "30d" }
+        );
+
+        // Set cookie
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+        return {
+          success: true,
+          message: "تم التسجيل بنجاح",
+          userId,
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Error registering user:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "فشل التسجيل",
+        });
+      }
+    }),
+
+  // Login with email and password
+  loginWithEmail: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+      password: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Find user
+        const user = await getUserByEmail(input.email);
+        if (!user || !user.password) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+          });
+        }
+
+        // Verify password
+        const isValidPassword = await bcrypt.compare(input.password, user.password);
+        if (!isValidPassword) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+          });
+        }
+
+        // Create session token
+        const token = jwt.sign(
+          { userId: user.id, email: user.email },
+          ENV.jwtSecret,
+          { expiresIn: "30d" }
+        );
+
+        // Set cookie
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+        return {
+          success: true,
+          message: "تم تسجيل الدخول بنجاح",
+          user: {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            name: user.name,
+          },
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Error logging in:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "فشل تسجيل الدخول",
+        });
+      }
+    }),
+
   // Placeholder for other auth methods
   sendVerificationCode: publicProcedure
     .input(z.object({ email: z.string().email() }))

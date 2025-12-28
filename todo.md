@@ -207,3 +207,20 @@
 **Last Updated:** December 28, 2025
 **Version:** 1.0.0
 **Status:** Core Features Complete, Ready for Production
+
+---
+
+## 🔄 NEW REQUEST: Independent Authentication System
+
+### Remove Manus OAuth, Keep Google OAuth
+- [x] Remove Manus OAuth integration from backend
+- [x] Remove Manus OAuth buttons from frontend
+- [x] Add password field to users table schema
+- [x] Implement bcrypt password hashing
+- [x] Create email/password registration endpoint
+- [x] Create email/password login endpoint
+- [x] Update login page with email/password form
+- [x] Update register page (kept both Google and Email options)
+- [x] Keep Google OAuth functionality intact
+- [ ] Test complete authentication flow
+- [ ] Update GitHub repository with changes

@@ -18,6 +18,7 @@ import RegisterEmail from "./pages/RegisterEmail";
 import RegisterProfile from "./pages/RegisterProfile";
 import Welcome from "./pages/Welcome";
 import SelectUsername from "./pages/SelectUsername";
+import Login from "./pages/Login";
 
 function Router() {
   return (
@@ -36,6 +37,7 @@ function Router() {
       <Route path={"/register"} component={Register} />
       <Route path={"/register/email"} component={RegisterEmail} />
       <Route path={"/register/profile"} component={RegisterProfile} />
+      <Route path={"/login"} component={Login} />
       <Route path={"/welcome"} component={Welcome} />
       <Route path={"/select-username"} component={SelectUsername} />
       {/* Final fallback route */}
