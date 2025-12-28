@@ -16,6 +16,7 @@ import AuctionDetail from "./pages/AuctionDetail";
 import Register from "./pages/Register";
 import RegisterEmail from "./pages/RegisterEmail";
 import RegisterProfile from "./pages/RegisterProfile";
+import Welcome from "./pages/Welcome";
 
 function Router() {
   return (
@@ -34,6 +35,7 @@ function Router() {
       <Route path={"/register"} component={Register} />
       <Route path={"/register/email"} component={RegisterEmail} />
       <Route path={"/register/profile"} component={RegisterProfile} />
+      <Route path={"/welcome"} component={Welcome} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>

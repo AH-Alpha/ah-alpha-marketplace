@@ -356,3 +356,17 @@
 - [x] Add authentication guard to place-bid action
 - [x] Show login redirect modal when user tries protected action
 - [x] Test all protected actions (34 tests added)
+
+
+## Welcome Page & Trial Balance (Current Sprint)
+
+- [x] Update OAuth callback to redirect new users to welcome page
+- [x] Create welcome page with trial balance offer
+- [x] Add trial balance API endpoint
+- [x] Implement balance addition logic
+- [x] Add welcome route to App.tsx
+- [x] Test OAuth flow with new user redirection (41 tests passing)
+- [x] Test trial balance acceptance
+- [x] Test trial balance decline
+- [x] Verify immediate selling capability
+- [x] Verify immediate bidding capability

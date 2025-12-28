@@ -215,6 +215,27 @@ export const appRouter = router({
       return result.length > 0 ? result[0] : null;
     }),
     
+    addTrialBalance: protectedProcedure.mutation(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      
+      // Check if user already has balance
+      const existingBalance = await getUserBalance(ctx.user.id);
+      if (existingBalance > 0) {
+        throw new Error("لقد استخدمت المبلغ التجريبي بالفعل");
+      }
+      
+      // Add 5000 IQD trial balance as bonus
+      await db.insert(transactions).values({
+        userId: ctx.user.id,
+        type: "bonus",
+        amount: 5000,
+        description: "مبلغ تجريبي ترحيبي",
+      });
+      
+      return { success: true, amount: 5000 };
+    }),
+
     updateProfile: protectedProcedure
       .input(z.object({
         name: z.string().optional(),
