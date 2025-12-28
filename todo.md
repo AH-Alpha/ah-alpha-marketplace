@@ -259,3 +259,21 @@
 - [ ] Test email sending
 - [ ] Save checkpoint
 - [ ] Push to GitHub
+
+
+---
+
+## 🔧 URGENT FIX: Railway Deployment Crash
+
+### Issue: OAuth initialization causing crash
+Error: `OAUTH_SERVER_URL is not configured` and `paths[0] argument must be of type string`
+
+### Tasks:
+- [x] Remove OAuth initialization from server startup
+- [x] Remove OAuth routes and middleware
+- [x] Make OAuth system optional/disabled
+- [x] Update context.ts to work without OAuth
+- [x] Test server starts without OAuth env vars
+- [ ] Save checkpoint
+- [ ] Push to GitHub
+- [ ] Verify Railway deployment works
